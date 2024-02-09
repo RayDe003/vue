@@ -12,13 +12,13 @@ Vue.component('product', {
    <div class="product">
         <div class="product-image">
             <img :src="image" :alt="altText"/>
-            <a :href="link">More products like this</a>
         </div>
         <div class="product-info">
           <p>User is premium: {{ premium }}</p>
             <h1>{{ title }}</h1>
 
             <p>{{ description }}</p>
+          <a :href="link">More products like this</a>
 
             <p v-if="inStock && inventory > 10">In stock</p>
             <p v-else-if="inventory <= 10 && inventory > 0">Almost sold out!</p>
@@ -26,12 +26,8 @@ Vue.component('product', {
 
             <span v-show="onSale">{{ sale }}</span>
 
-
-          <product-details :details="details"></product-details>
           
-          
-          <p>Shipping: {{ shipping }}</p>
-
+          <info-tabs :shipping="shipping"> </info-tabs>
             <div  v-for="size in sizes" :key="size" >
                 <p >{{ size }}</p>
             </div>
@@ -51,6 +47,7 @@ Vue.component('product', {
             >Add to cart</button>
             <button v-on:click="getOutOfCart">No need</button>
         </div>
+     <product-tabs :reviews="reviews" @review-submitted="addReview"></product-tabs>
     </div>
  `,
     methods: {
@@ -101,7 +98,6 @@ Vue.component('product', {
             altText: "A pair of socks",
             link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks.",
             inventory: 100,
-            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
             variants: [
                 {
                     variantId: 2234,
@@ -122,7 +118,6 @@ Vue.component('product', {
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
             cart: 0,
             reviews: [],
-
         }
     },
 
@@ -274,7 +269,37 @@ Vue.component('product-tabs', {
         }
     },
 })
-
+Vue.component('info-tabs', {
+    props: {
+        shipping: {
+            required: true
+        },
+    },
+    template: `
+     <div>   
+       <ul>
+         <span class="tab"
+               :class="{ activeTab: selectedTab === tab }"
+               v-for="(tab, index) in tabs"
+               @click="selectedTab = tab"
+         >{{ tab }}</span>
+       </ul>
+       <div v-show="selectedTab === 'Shipping'">
+         <p>{{ shipping }}</p>
+       </div>
+       <div v-show="selectedTab === 'Details'">
+         <product-details :details="details"></product-details>
+       </div>
+     </div>
+`,
+    data() {
+        return {
+            tabs: ['Shipping', 'Details'],
+            selectedTab: 'Shipping',
+            details: ['80% cotton', '20% polyester', 'Gender-neutral']
+        }
+    }
+})
 
 let app = new Vue({
     el: '#app',
